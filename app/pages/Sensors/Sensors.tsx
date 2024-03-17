@@ -1,32 +1,12 @@
-import { View, Text, StyleSheet, Image, 
-    Animated, // для динамичного применения стилей
-    useWindowDimensions, // размеры экрана пользователя
-    Dimensions,
-    SafeAreaView
-} from 'react-native';
+import { View, Text, StyleSheet,} from 'react-native';
 import { SensorPropse } from '@/navigation/navigation.types';
 import { FC } from 'react';
 import Header from '@/component/Header/Header';
-import { useState, useRef, createRef } from 'react';
-import { SENSORS, ISensors, TKeySensor } from '@/data/sensors';
+import { SENSORS } from '@/data/sensors';
 
-import { 
-    TapGestureHandler, // для двойново нажатия и возврата в исходное состояние
-    PanGestureHandler, // для движения кортинки по экрану пальцем
-    PinchGestureHandler // для зума двумя пальцами
-} from 'react-native-gesture-handler';
 import Zoom from '@/component/Zoom/Zoom';
+import { COLOR_ROOT } from '@/data/colors';
 
-
-
-export interface IImage {
-    /**
-     * Маштаб изображения.
-     */
-    scale: Animated.AnimatedMultiplication<string | number>;
-    translateX: Animated.AnimatedDivision<string | number>;
-    translateY: Animated.AnimatedDivision<string | number>;
-}
 
 
 /**
@@ -35,69 +15,63 @@ export interface IImage {
  */
 const Sensors: FC<SensorPropse> = ({route}) => {
 
-    const {width} = useWindowDimensions(); // получаем размер экрана
-
     const numberSensor: number = route.params.numberSensor;
 
-    // console.log(Dimensions.get('window').width);
-    // console.log(Dimensions.get('window').height);
-
-    const renderImage = ({scale, translateX, translateY}: IImage) => {
-        return(
-            <Animated.Image
-                source={require('@/source/imgPlan/1.jpg')}
-                style={[
-                    {width, height: 500},
-                    {
-                        transform: [
-                            {scale},
-                            {translateX},
-                            {translateY}
-                        ]
-                    }
-                ]}
-            />
-        )
-    }
-
-
+    const subTitle = SENSORS[numberSensor].subtitle.map(point => {
+        return <Text style={styles.point} key={point.id}>✅ {point.text}</Text>
+    });
 
     return (
-        <SafeAreaView style={{flex: 1}}> 
         <View style={styles.main}>
             <Header/>
-            <Text style={styles.text} >{'Датчик №' + numberSensor}</Text>
-            <Text style={styles.text} >{'Тип : ' + SENSORS[numberSensor].title}</Text>
-
-            <Zoom renderImage={renderImage} />
-
+            <View style={styles.line} />
+            <Text style={styles.textSensor} >{'Датчик №' + numberSensor}</Text>
+            <Text style={styles.textSensor} >{'Тип : ' + SENSORS[numberSensor].type}</Text>
+            <View style={styles.line} />
+            <View style={styles.boxSubTitle} >
+                <Text style={styles.title} >{SENSORS[numberSensor].title}</Text>
+                {subTitle}
+            </View>
+            <Zoom source={SENSORS[numberSensor].img} />
         </View>
-        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     main: {
         flex: 1,
+        alignItems: 'center'
     },
-    scrollView: {
-        backgroundColor: 'red',
-        flex: 1,
-        marginTop: 20
+    line: {
+        width: '100%',
+        height: 3,
+        backgroundColor: 'white',
+        marginBottom: 3,
+        marginTop: 3
     },
-    imgBox: {
-        flex: 1,
-        backgroundColor: 'green',
-        height: 520,
-        width: '100%'
+    title: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: 'white'
     },
-    img: {
-        resizeMode: 'contain',
+    boxSubTitle: {
+        width: '100%',
+        padding: 10
+    },
+    textSensor: {
+        fontSize: 17,
+        color: COLOR_ROOT.YELLOW,
+        fontWeight: '600'
     },
     text: {
         color: 'white',
         fontSize: 20
     },
+    point: {
+        color: 'white',
+        fontSize: 17,
+        lineHeight: 23
+    }
 });
 
 export default  Sensors;

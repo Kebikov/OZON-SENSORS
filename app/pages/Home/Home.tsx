@@ -14,7 +14,7 @@ const Home: FC = () => {
 
     const diapason: {start: number, end: number} = {
         start: 1,
-        end: 1
+        end: 2
     }
 
     const [isExisting, setIsExisting] = useState<boolean>(true);
@@ -32,6 +32,13 @@ const Home: FC = () => {
         }
     }
 
+    const handlePush = () => {
+        Vibration.vibrate([1, 12, 10]);
+        if(numberSensor && numberSensor >= diapason.start && numberSensor <= diapason.end) {
+            navigate('Sensors', {numberSensor});
+        }
+    }
+
 	return(
         <View style={styles.main} >
             <View style={styles.logoBox}>
@@ -39,20 +46,16 @@ const Home: FC = () => {
             </View>
 
             <TextInput 
-                keyboardType='numeric' 
+                keyboardType='numeric'
                 style={styles.input}
                 onChangeText={text => onChangeText(text)}
                 placeholder='Введите номер датчика'
+                onSubmitEditing={handlePush} 
             />
             <Text style={styles.errorText}>{isExisting ? null : 'Нет такого датчика.'}</Text>
             <Pressable 
                 style={styles.button} 
-                onPress={() => {
-                    Vibration.vibrate([1, 12, 10]);
-                    if(numberSensor && numberSensor >= diapason.start && numberSensor <= diapason.end) {
-                        navigate('Sensors', {numberSensor});
-                    }
-                }}
+                onPress={() => handlePush()}
             >
                 <Text style={styles.text} >запрос</Text>
             </Pressable>

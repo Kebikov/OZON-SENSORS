@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Animated, NativeSyntheticEvent } from 'react-native';
+import { View, Text, StyleSheet, Animated, useWindowDimensions } from 'react-native';
 import React, { FC, useCallback, useState, useRef } from 'react';
 import { 
     TapGestureHandler, 
@@ -9,18 +9,25 @@ import {
     PanGestureHandler,
     PanGestureHandlerEventPayload
 } from 'react-native-gesture-handler';
-import { IImage } from '@/pages/Sensors/Sensors';
+
 
 interface IZoom {
-    renderImage: ({}: IImage) => JSX.Element;
+    /**
+     * Ссылка на локальное изображение.
+     */
+    source: number;
 }
 
 /**
- * @component
+ * @component Для зумирувония и перемешения изображения.
  * @example 
  * @returns {JSX.Element}
  */
-const Zoom: FC<IZoom> = ({ renderImage }) => {
+const Zoom: FC<IZoom> = ({ source }) => {
+
+    const {width} = useWindowDimensions(); // получаем размер экрана
+
+    const height = 2534 * width / 2000;
 
     const [isZoomedIn, setIsZoomedIn] = useState<boolean>(false);
 
@@ -31,7 +38,6 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
      */
     const pinchScale = useRef(new Animated.Value(1)).current;
     const scale = useRef(Animated.multiply(baseScale, pinchScale)).current;
-    
     const translateX = useRef(new Animated.Value(0)).current;
     /**
      * Замедление перемешения по оси X в зависимости от зума.
@@ -126,6 +132,9 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
         setIsZoomedIn(true);
     }, []);
 
+    /**
+     * Обработка двойного нажатия.
+     */
     const onDoubleTap = useCallback((event: HandlerStateChangeEvent<TapGestureHandlerEventPayload>) => {
         if(event.nativeEvent.state !== State.ACTIVE) {
             return // если нажатие не активно возврат из функции
@@ -139,7 +148,6 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
 
     }, [isZoomedIn, zoomIn, zoomOut]);
 
-    
     // Зум, связывание scale и pinchScale,  полученный scale в результате действия будет автоматически установлен у обьекта pinchScale.
     const onPinchGestureEvent = Animated.event(
         [{nativeEvent: {scale: pinchScale}}],
@@ -163,22 +171,27 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
         }
     }, []);
 
-const onPanGestureEvent = Animated.event(
-    [
-        {
-            nativeEvent: {
-                translationX: translateX,
-                translationY: translateY
+    /**
+     *  Обработка перемешения.
+     */
+    const onPanGestureEvent = Animated.event(
+        [
+            {
+                nativeEvent: {
+                    translationX: translateX,
+                    translationY: translateY
+                }
             }
+        ],
+        {
+            useNativeDriver: true,
         }
-    ],
-    {
-        useNativeDriver: true,
-    }
-);
+    );
 
+    /**
+     *  Обработка перемешения.
+     */
     const onPanHandlerStateChange = useCallback((event: HandlerStateChangeEvent<PanGestureHandlerEventPayload>) => {
-
         //console.log('Pan = ', event.nativeEvent);
         if(event.nativeEvent.oldState === State.ACTIVE) {
             lastOffset.x += event.nativeEvent.translationX;
@@ -208,7 +221,19 @@ const onPanGestureEvent = Animated.event(
                             maxPointers={1}
                             minPointers={1}
                         >
-                            {renderImage({scale, translateX:  translateXslowdown, translateY: translateYslowdown})}
+                            <Animated.Image
+                                source={source}
+                                style={[
+                                    {width, height},
+                                    {
+                                        transform: [
+                                            {scale},
+                                            {translateX: isZoomedIn ? translateXslowdown : 0},
+                                            {translateY: isZoomedIn ? translateYslowdown : 0}
+                                        ]
+                                    }
+                                ]}
+                            />
                         </PanGestureHandler>
                     </Animated.View>
                 </PinchGestureHandler>
@@ -221,5 +246,3 @@ const styles = StyleSheet.create({
 });
 
 export default Zoom;
-
-

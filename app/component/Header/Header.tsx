@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         padding: 5,
-        marginBottom: 20
+        marginBottom: 10
     },
     img: {
         resizeMode: 'contain',
