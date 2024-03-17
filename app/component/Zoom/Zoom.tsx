@@ -31,8 +31,17 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
      */
     const pinchScale = useRef(new Animated.Value(1)).current;
     const scale = useRef(Animated.multiply(baseScale, pinchScale)).current;
+    
     const translateX = useRef(new Animated.Value(0)).current;
+    /**
+     * Замедление перемешения по оси X в зависимости от зума.
+     */
+    const translateXslowdown = useRef(Animated.divide(translateX, scale)).current;
     const translateY = useRef(new Animated.Value(0)).current;
+    /**
+     * Замедление перемешения по оси Y в зависимости от зума.
+     */
+    const translateYslowdown = useRef(Animated.divide(translateY, scale)).current;
     /**
      * @Object С последними текушими значениями сдвига изображения.
      */
@@ -47,7 +56,7 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
      * Увеличение изображения по двойному тапу.
      */
     const zoomIn = useCallback(() => {
-        lastScale.current = 1.5;
+        lastScale.current = 2;
         // Паралельное аниминирование
         Animated.parallel([
             Animated.spring(baseScale, {
@@ -103,7 +112,7 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
      * - Если зум больше установленного lastScale.current произойдет возврат к установленному значению.
      */
     const zoomMax = useCallback(() => {
-        lastScale.current = 3;
+        lastScale.current = 2;
         Animated.parallel([
             Animated.spring(baseScale, {
                 toValue: lastScale.current,
@@ -142,11 +151,11 @@ const Zoom: FC<IZoom> = ({ renderImage }) => {
         //console.log('Zoom = ', event.nativeEvent);
         if(event.nativeEvent.oldState === State.ACTIVE) {
             lastScale.current = lastScale.current * event.nativeEvent.scale;
-            if(lastScale.current > 1 && lastScale.current <= 3) {
+            if(lastScale.current > 1 && lastScale.current <= 2) {
                 setIsZoomedIn(true);
                 baseScale.setValue(lastScale.current);
                 pinchScale.setValue(1); // для начала события увиличения двумя пальцами задаем начальное состояние 1
-            } else if(lastScale.current > 3) {
+            } else if(lastScale.current > 2) {
                 zoomMax();
             } else {
                 zoomOut();
@@ -199,7 +208,7 @@ const onPanGestureEvent = Animated.event(
                             maxPointers={1}
                             minPointers={1}
                         >
-                            {renderImage({scale, translateX, translateY})}
+                            {renderImage({scale, translateX:  translateXslowdown, translateY: translateYslowdown})}
                         </PanGestureHandler>
                     </Animated.View>
                 </PinchGestureHandler>

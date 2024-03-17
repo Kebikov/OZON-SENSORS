@@ -24,8 +24,8 @@ export interface IImage {
      * Маштаб изображения.
      */
     scale: Animated.AnimatedMultiplication<string | number>;
-    translateX: Animated.Value;
-    translateY: Animated.Value;
+    translateX: Animated.AnimatedDivision<string | number>;
+    translateY: Animated.AnimatedDivision<string | number>;
 }
 
 
@@ -65,17 +65,11 @@ const Sensors: FC<SensorPropse> = ({route}) => {
     return (
         <SafeAreaView style={{flex: 1}}> 
         <View style={styles.main}>
-            {/* <Header/>
+            <Header/>
             <Text style={styles.text} >{'Датчик №' + numberSensor}</Text>
-            <Text style={styles.text} >{'Тип : ' + SENSORS[numberSensor].title}</Text> */}
-            
-                {/* <Image 
-                    resizeMode='contain'
-                    source={ require('@/source/imgPlan/1.jpg') }
-                /> */}
-                {/* <Zoom/> */}
+            <Text style={styles.text} >{'Тип : ' + SENSORS[numberSensor].title}</Text>
 
-                <Zoom renderImage={renderImage} />
+            <Zoom renderImage={renderImage} />
 
         </View>
         </SafeAreaView>
