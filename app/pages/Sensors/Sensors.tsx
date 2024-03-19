@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, ScrollView, Image} from 'react-native';
+import { View, Text, StyleSheet, Image} from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { SensorPropse } from '@/navigation/navigation.types';
 import { FC } from 'react';
 import Header from '@/component/Header/Header';
@@ -25,10 +26,7 @@ console.log('isActiveScroll', isActiveScroll);
     });
 
     return (
-        <ScrollView 
-            ref={refScroll} 
-            scrollEnabled={isActiveScroll} //: Add 
-        >
+        <ScrollView style={{flex: 1}} ref={refScroll} >
             <View style={styles.main}>
                 <Header/>
                 <View style={styles.line} />
@@ -40,7 +38,7 @@ console.log('isActiveScroll', isActiveScroll);
                     {subTitle}
                 </View>
             
-                <Zoom source={SENSORS[numberSensor].img} refScroll={refScroll} setIsActiveScroll={setIsActiveScroll}/>
+                <Zoom source={SENSORS[numberSensor].img} refScroll={refScroll} />
             </View>
         </ScrollView>
     );
