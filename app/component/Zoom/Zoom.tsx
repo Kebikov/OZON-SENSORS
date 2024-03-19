@@ -16,6 +16,8 @@ interface IZoom {
      * Ссылка на локальное изображение.
      */
     source: number;
+    refScroll: React.MutableRefObject<null>;
+    setIsActiveScroll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**
@@ -23,7 +25,7 @@ interface IZoom {
  * @example 
  * @returns {JSX.Element}
  */
-const Zoom: FC<IZoom> = ({ source }) => {
+const Zoom: FC<IZoom> = ({ source, refScroll, setIsActiveScroll }) => {
 
     const {width} = useWindowDimensions(); // получаем размер экрана
 
@@ -102,6 +104,8 @@ const Zoom: FC<IZoom> = ({ source }) => {
             })
         ]).start();
 
+        setIsActiveScroll(true);
+
         lastOffset.x = 0;
         lastOffset.y = 0;
 
@@ -139,7 +143,7 @@ const Zoom: FC<IZoom> = ({ source }) => {
         if(event.nativeEvent.state !== State.ACTIVE) {
             return // если нажатие не активно возврат из функции
         }
-
+        console.log(isZoomedIn);
         if(isZoomedIn) {
             zoomOut();
         } else {
@@ -148,16 +152,18 @@ const Zoom: FC<IZoom> = ({ source }) => {
 
     }, [isZoomedIn, zoomIn, zoomOut]);
 
-    // Зум, связывание scale и pinchScale,  полученный scale в результате действия будет автоматически установлен у обьекта pinchScale.
+    // Zoom, связывание scale и pinchScale,  полученный scale в результате действия будет автоматически установлен у обьекта pinchScale.
     const onPinchGestureEvent = Animated.event(
         [{nativeEvent: {scale: pinchScale}}],
         {useNativeDriver: true}
     );
 
-    // Зум
+    // Zoom
     const onPinchHandelStateChange = useCallback((event: HandlerStateChangeEvent<PinchGestureHandlerEventPayload>) => {
-        //console.log('Zoom = ', event.nativeEvent);
+        console.log('Zoom');
+        console.log(event.nativeEvent);
         if(event.nativeEvent.oldState === State.ACTIVE) {
+            console.log('State.ACTIVE');
             lastScale.current = lastScale.current * event.nativeEvent.scale;
             if(lastScale.current > 1 && lastScale.current <= 2) {
                 setIsZoomedIn(true);
@@ -168,7 +174,10 @@ const Zoom: FC<IZoom> = ({ source }) => {
             } else {
                 zoomOut();
             }
-        }
+        } else if(event.nativeEvent.oldState === State.BEGAN && event.nativeEvent.numberOfPointers === 2) {
+            console.log('State.BEGAN');
+            setIsActiveScroll(false);
+        } 
     }, []);
 
     /**
@@ -192,7 +201,7 @@ const Zoom: FC<IZoom> = ({ source }) => {
      *  Обработка перемешения.
      */
     const onPanHandlerStateChange = useCallback((event: HandlerStateChangeEvent<PanGestureHandlerEventPayload>) => {
-        //console.log('Pan = ', event.nativeEvent);
+        console.log('Pan');
         if(event.nativeEvent.oldState === State.ACTIVE) {
             lastOffset.x += event.nativeEvent.translationX;
             lastOffset.y += event.nativeEvent.translationY;
@@ -204,22 +213,26 @@ const Zoom: FC<IZoom> = ({ source }) => {
         }
     }, [lastOffset]);
 
+
     return (
         <TapGestureHandler
+            simultaneousHandlers={refScroll}
             onHandlerStateChange={onDoubleTap} // Этот колбэк вызывается, когда состояние обработчика жестов изменяется. 
             numberOfTaps={2} // Количество ожидаемых нажатий
         >
-            <Animated.View style={{flex: 1}}>
+            <Animated.View style={{flex: 1, backgroundColor: 'red'}}>
                 <PinchGestureHandler
                     onHandlerStateChange={onPinchHandelStateChange}
                     onGestureEvent={onPinchGestureEvent} // Этот колбэк вызывается, когда обработчик жестов обнаруживает событие жеста.
                 >
                     <Animated.View style={{flex: 1}}>
                         <PanGestureHandler
+                            enabled={isZoomedIn} //: Add 
                             onGestureEvent={onPanGestureEvent}
                             onHandlerStateChange={onPanHandlerStateChange}
                             maxPointers={1}
                             minPointers={1}
+                            waitFor={refScroll} //: Add 
                         >
                             <Animated.Image
                                 source={source}
