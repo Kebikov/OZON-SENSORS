@@ -18,7 +18,7 @@ const Sensors: FC<SensorPropse> = ({route}) => {
 
     const refScroll = useRef(null);
     const [isActiveScroll, setIsActiveScroll] = useState<boolean>(true);
-console.log('isActiveScroll', isActiveScroll);
+
     const numberSensor: number = route.params.numberSensor;
 
     const subTitle = SENSORS[numberSensor].subtitle.map(point => {
