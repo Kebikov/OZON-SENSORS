@@ -1,13 +1,17 @@
-import { View, Text, StyleSheet, Image} from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, LayoutChangeEvent } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SensorPropse } from '@/navigation/navigation.types';
 import { FC } from 'react';
 import Header from '@/component/Header/Header';
 import { SENSORS } from '@/data/sensors';
-import { useRef, useState } from 'react';
+import { useRef, useLayoutEffect } from 'react';
 import Zoom from '@/component/Zoom/Zoom';
 import { COLOR_ROOT } from '@/data/colors';
+import { Dimensions } from 'react-native';
+import { measure } from 'react-native-reanimated';
 
+const windowDimensions = Dimensions.get('window');
+const screenDimensions = Dimensions.get('screen');
 
 
 /**
@@ -17,7 +21,8 @@ import { COLOR_ROOT } from '@/data/colors';
 const Sensors: FC<SensorPropse> = ({route}) => {
 
     const refScroll = useRef(null);
-    const [isActiveScroll, setIsActiveScroll] = useState<boolean>(true);
+
+    const {height} = useWindowDimensions();
 
     const numberSensor: number = route.params.numberSensor;
 
@@ -25,22 +30,32 @@ const Sensors: FC<SensorPropse> = ({route}) => {
         return <Text style={styles.point} key={point.id}>✅ {point.text}</Text>
     });
 
+    const onLayout = (e: LayoutChangeEvent) => {
+        console.log('onLayout = ', e.nativeEvent.layout.height);
+    }
+
+
+
+
+
     return (
-        <ScrollView style={{flex: 1}} ref={refScroll} >
-            <View style={styles.main}>
-                <Header/>
+        <View style={styles.main} >
+            <Header />
+            <ScrollView  contentContainerStyle={{flexGrow: 1}} ref={refScroll} >
                 <View style={styles.line} />
                 <Text style={styles.textSensor} >{'Датчик №' + numberSensor}</Text>
                 <Text style={styles.textSensor} >{'Тип : ' + SENSORS[numberSensor].type}</Text>
                 <View style={styles.line} />
+                
                 <View style={styles.boxSubTitle} >
                     <Text style={styles.title} >{SENSORS[numberSensor].title}</Text>
                     {subTitle}
                 </View>
             
                 <Zoom source={SENSORS[numberSensor].img} refScroll={refScroll} />
-            </View>
-        </ScrollView>
+
+            </ScrollView>
+        </View>
     );
 };
 
@@ -63,13 +78,13 @@ const styles = StyleSheet.create({
     },
     boxSubTitle: {
         width: '100%',
-        padding: 10,
-        marginBottom: 300 // !!! 
+        padding: 10
     },
     textSensor: {
         fontSize: 17,
         color: COLOR_ROOT.YELLOW,
-        fontWeight: '600'
+        fontWeight: '600',
+        textAlign: 'center'
     },
     text: {
         color: 'white',

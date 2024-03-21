@@ -4,12 +4,12 @@
     "slug": "ozon-sensors",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/iconMy.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splashMy.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#095dfa"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -19,12 +19,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/adaptive-iconMy.png",
+        "backgroundColor": "#095dfa"
+      },
+      "package": "com.kebikov.ozonsensors"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/faviconMy.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bba6ea62-0867-4282-b0c2-e1db44bf346c"
+      }
     }
   }
 }

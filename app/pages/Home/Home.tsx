@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Image, TextInput, Button, Vibration, Pressable } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { TypeRootPage } from '@/navigation/navigation.types';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { COLOR_ROOT } from '@/data/colors';
 import { useState } from 'react';
 
@@ -11,15 +11,15 @@ import { useState } from 'react';
  * @returns {JSX.Element}
  */
 const Home: FC = () => {
-
+    
     const diapason: {start: number, end: number} = {
         start: 1,
-        end: 2
+        end: 4
     }
 
     const [isExisting, setIsExisting] = useState<boolean>(true);
     const [numberSensor, setNumberSensor] = useState<number>(0);
-
+    console.log(numberSensor);
     const {navigate} = useNavigation<NavigationProp<TypeRootPage>>(); 
 
     const onChangeText = (event: string) => {
@@ -36,6 +36,8 @@ const Home: FC = () => {
         Vibration.vibrate([1, 12, 10]);
         if(numberSensor && numberSensor >= diapason.start && numberSensor <= diapason.end) {
             navigate('Sensors', {numberSensor});
+            console.log('Run');
+            setNumberSensor(0);
         }
     }
 
@@ -46,18 +48,19 @@ const Home: FC = () => {
             </View>
 
             <TextInput 
+                defaultValue={numberSensor ? String(numberSensor) : ''}
                 keyboardType='numeric'
                 style={styles.input}
                 onChangeText={text => onChangeText(text)}
                 placeholder='Введите номер датчика'
                 onSubmitEditing={handlePush} 
             />
-            <Text style={styles.errorText}>{isExisting ? null : 'Нет такого датчика.'}</Text>
+            
             <Pressable 
-                style={styles.button} 
+                style={isExisting ? styles.button : styles.buttonNot} 
                 onPress={() => handlePush()}
             >
-                <Text style={styles.text} >запрос</Text>
+                <Text style={styles.text} >{isExisting ? 'запрос' : 'не найден'}</Text>
             </Pressable>
             <View style={styles.fireBox}>
                 <Image style={styles.fireImg} source={require('@/source/img/fire.jpg')}/>
@@ -106,6 +109,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
+    buttonNot: {
+        marginTop: 7,
+        width: '80%',
+        height: 50,
+        borderRadius: 10,
+        backgroundColor: '#ccc',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     text: {
         fontSize: 18,
         color: 'white',
@@ -124,11 +137,6 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         width: '100%',
         height: '100%'
-    },
-    errorText: {
-        color: 'white',
-        fontSize: 17,
-        textAlign: 'center'
     }
 });
 

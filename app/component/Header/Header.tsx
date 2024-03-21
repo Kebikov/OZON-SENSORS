@@ -21,6 +21,7 @@ const Header: FC = () => {
     );
 };
 
+
 const styles = StyleSheet.create({
     main: {
         height: 30,
