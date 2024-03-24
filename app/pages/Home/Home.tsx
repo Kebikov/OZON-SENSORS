@@ -1,27 +1,41 @@
-import { View, Text, StyleSheet, Image, TextInput, Button, Vibration, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, Vibration, Pressable } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { TypeRootPage } from '@/navigation/navigation.types';
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import { COLOR_ROOT } from '@/data/colors';
 import { useState } from 'react';
 
+
+
 /**
- * @component
- * @example
- * @returns {JSX.Element}
+ * @page Главная страница приложения.
  */
 const Home: FC = () => {
-    
+    /**
+     * Номера сенсоров которые есть в базе данных.
+     */
     const diapason: {start: number, end: number} = {
         start: 1,
-        end: 4
+        end: 26
     }
 
+    /**
+     * @param isExisting Есть ли датчик в базе данных.
+     */
     const [isExisting, setIsExisting] = useState<boolean>(true);
+    /**
+     * @param numberSensor Номер датчика.
+     */
     const [numberSensor, setNumberSensor] = useState<number>(0);
-    console.log(numberSensor);
+    
     const {navigate} = useNavigation<NavigationProp<TypeRootPage>>(); 
 
+    /**
+     * @function onChangeText 
+     * - Проверяет, есть ли датчик в базе данных.
+     * - Устанавливает состояние(useState) в зависимости от результата проверки.
+     * @param {string} event Принимает обьект события.
+     */
     const onChangeText = (event: string) => {
         const value: number = Number(event);
         if(value >= diapason.start && value <= diapason.end || event === '') {
@@ -32,14 +46,18 @@ const Home: FC = () => {
         }
     }
 
+
+    /**
+     * @function handlePush Переход на страницу 'Sensors'.
+     */
     const handlePush = () => {
         Vibration.vibrate([1, 12, 10]);
         if(numberSensor && numberSensor >= diapason.start && numberSensor <= diapason.end) {
             navigate('Sensors', {numberSensor});
-            console.log('Run');
             setNumberSensor(0);
         }
     }
+
 
 	return(
         <View style={styles.main} >
@@ -57,8 +75,9 @@ const Home: FC = () => {
             />
             
             <Pressable 
-                style={isExisting ? styles.button : styles.buttonNot} 
+                style={isExisting ? styles.button : styles.buttonNot}
                 onPress={() => handlePush()}
+                disabled={!isExisting}
             >
                 <Text style={styles.text} >{isExisting ? 'запрос' : 'не найден'}</Text>
             </Pressable>
@@ -107,7 +126,8 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_ROOT.PINK,
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex: 2
     },
     buttonNot: {
         marginTop: 7,

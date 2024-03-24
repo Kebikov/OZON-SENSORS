@@ -26,8 +26,8 @@ const Sensors: FC<SensorPropse> = ({route}) => {
 
     const numberSensor: number = route.params.numberSensor;
 
-    const subTitle = SENSORS[numberSensor].subtitle.map(point => {
-        return <Text style={styles.point} key={point.id}>✅ {point.text}</Text>
+    const subTitle = SENSORS[numberSensor].subtitle.map((point, i) => {
+        return <Text style={styles.point} key={i}>✅ {point.text}</Text>
     });
 
     const onLayout = (e: LayoutChangeEvent) => {
